@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorpresa</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #fce4ec, #f8bbd0);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    .container, .pregunta-novia, .ticket {
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 400px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    h1, h2 {
+      color: #c2185b;
+      margin-bottom: 1rem;
+    }
+
+    .button, .confirmacion {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    button {
+      background: linear-gradient(to right, #eb5a8a, #a99ba0);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 30px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      min-width: 100px;
+      animation: growIn 0.5s ease-out;
+    }
+
+    button:hover {
+      background: #c2185b;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .mensaje {
+      margin-top: 20px;
+      color: #6a1b9a;
+      font-size: 1.1rem;
+    }
+
+    .respuesta-extra {
+      margin-top: 1rem;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .respuesta-extra input {
+      padding: 0.5rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      width: 90%;
+      margin-bottom: 0.5rem;
+    }
+
+    .ticket p {
+      margin: 0.5rem 0;
+      color: #6a1b9a;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes growIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Pregunta inicial -->
+  <div class="container" id="declaracion">
+    <h1>¿Leyre, quieres salir conmigo?</h1>
+    <div class="button">
+      <button onclick="Si()">Sí ❤️</button>
+      <button onclick="No()">No 😢</button>
+    </div>
+    <div class="mensaje" id="mensaje"></div>
+    <div class="respuesta-extra" id="respuestaExtra">
+      <input type="text" id="textoRespuesta" placeholder="¿Por qué no? 😢">
+      <button onclick="enviarRespuestaExtra()">Enviar</button>
+    </div>
+  </div>
+
+  <!-- Pregunta "¿Entonces quieres ser mi novia?" -->
+  <div class="pregunta-novia" id="preguntaNovia" style="display: none; flex-direction: column; align-items: center;">
+    <h2>¿Entonces quieres ser mi novia? 💖</h2>
+    <div class="confirmacion">
+      <button onclick="responderNovia('Sí 🥰')">Sí 🥰</button>
+      <button onclick="responderNovia('No 😅')">No 😅</button>
+    </div>
+  </div>
+
+  <!-- Mensaje final -->
+  <div class="ticket" id="ticket" style="display: none;">
+    <h1>¡Muchas gracias!!! ❤️❤️</h1>
+    <p>Te invito a una cita</p>
+    <p><strong>Lugar:</strong> donde quieras</p>
+    <p><strong>Hora:</strong> a la que quieras</p>
+    <p><strong>Yo pago todo</strong></p>
+  </div>
+
+  <script>
+    let contador = 0;
+    const declaracion = document.getElementById("declaracion");
+    const ticket = document.getElementById("ticket");
+    const mensaje = document.getElementById("mensaje");
+    const respuestaExtra = document.getElementById("respuestaExtra");
+    const textoRespuesta = document.getElementById("textoRespuesta");
+    const preguntaNovia = document.getElementById("preguntaNovia");
+
+    const webhookURL = "https://discord.com/api/webhooks/1380209015128330250/KmXYv0-LwXxGgCSKPbEwjHQyDIbpXGCJVpCPGv7vPiZVdkj-uii-7HLgx_kh41FF2xpY";
+
+    function enviarWebhook(respuesta) {
+      fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: `Respuesta recibida: ${respuesta}` })
+      }).catch(err => console.error("Error al enviar al webhook:", err));
+    }
+
+    function Si() {
+      enviarWebhook("Sí ❤️");
+      declaracion.style.display = 'none';
+      preguntaNovia.style.display = 'flex';
+    }
+
+    function No() {
+      contador++;
+      const respuestas = [
+        "¿Por qué no? 😢",
+        "Eres la razón por la que me sigo levantando cada día feliz",
+        "Piénsalo bien, no te vas a arrepentir",
+        "Te necesito a mi lado 😢",
+        "Ya porfa dime que sí 🥺"
+      ];
+      mensaje.textContent = respuestas[Math.min(contador, respuestas.length - 1)];
+      respuestaExtra.style.display = 'flex';
+      enviarWebhook(`No 😢 (intento #${contador})`);
+    }
+
+    function enviarRespuestaExtra() {
+      const texto = textoRespuesta.value.trim();
+      if (texto !== "") {
+        enviarWebhook(`Respuesta escrita tras decir No: ${texto}`);
+        textoRespuesta.value = "";
+        alert("¡Gracias por tu respuesta! ❤️");
+        respuestaExtra.style.display = "none";
+      }
+    }
+
+    function responderNovia(respuesta) {
+      enviarWebhook(`Respuesta a '¿Quieres ser mi novia?': ${respuesta}`);
+      if (respuesta.includes("Sí")) {
+        preguntaNovia.style.display = 'none';
+        ticket.style.display = 'block';
+      } else {
+        alert("Ok, lo entiendo 😢");
+        preguntaNovia.style.display = 'none';
+      }
+    }
+
+    window.onload = () => {
+      enviarWebhook("🟢 Alguien ha abierto la página");
+    };
+  </script>
+</body>
+</html>
